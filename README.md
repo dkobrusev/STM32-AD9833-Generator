@@ -42,8 +42,20 @@ If you are using hardware SPI, configure it according to the parameters specifie
 ```
 
 ## How to use
-There some functions to change the behavior of AD9833 that you can use:
+Below are the library functions that can be used to control the AD9833 chip.
 
 ```C
-
+//void AD9833_SendData(uint16_t data); // Data transmission (uncomment if you want to use it in the program)  
+void AD9833_Init(void); // AD9833 initialization
+void AD9833_Reset_ON(void);     // Activation of the reset bit
+void AD9833_Reset_OFF(void);    // Deactivation of the reset bit
+void AD9833_SetFrequency_0(float frequency);    // Setting the frequency value in the FREQ0 register
+void AD9833_SetFrequency_1(float frequency);    // Setting the frequency value in the FREQ1 register
+void AD9833_SetPhase_0(float phase);    // Setting the phase value in the PHASE0 register
+void AD9833_SetPhase_1(float phase);    // Setting the phase value in the PHASE1 register
+void AD9833_SelectOutFrequencyRegister(AD9833_FreqReg f_reg);  // Selection of the active frequency register
+void AD9833_SelectOutPhaseRegister(AD9833_PhaseReg p_reg);     // Selection of the active phase register
+void AD9833_SetWaveform(AD9833_Waveform waveform);      // Waveform selection
+void AD9833_SetConfigF0P0(float frequency, float phase, AD9833_Waveform waveform);      // Configuration and selection of the FREQ0 and PHASE0 registers, as well as the waveform 
+void AD9833_SetConfigF1P1(float frequency, float phase, AD9833_Waveform waveform);      // Configuration and selection of the FREQ1 and PHASE1 registers, as well as the waveform
 ```
