@@ -21,9 +21,9 @@
  It affects the functions AD9833_SendData and AD9833_Init
 
  //RU//
- Вы можете использовать программный или аппаратный SPI
- Программный SPI был протестирован на частоте HCLK = 100 МГц
- Аппаратный SPI использует библиотеку LL и протестирован на скорости 12.5 MBits/s со следующими настройками SPI:
+ Р’С‹ РјРѕР¶РµС‚Рµ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РїСЂРѕРіСЂР°РјРјРЅС‹Р№ РёР»Рё Р°РїРїР°СЂР°С‚РЅС‹Р№ SPI
+ РџСЂРѕРіСЂР°РјРјРЅС‹Р№ SPI Р±С‹Р» РїСЂРѕС‚РµСЃС‚РёСЂРѕРІР°РЅ РЅР° С‡Р°СЃС‚РѕС‚Рµ HCLK = 100 РњР“С†
+ РђРїРїР°СЂР°С‚РЅС‹Р№ SPI РёСЃРїРѕР»СЊР·СѓРµС‚ Р±РёР±Р»РёРѕС‚РµРєСѓ LL Рё РїСЂРѕС‚РµСЃС‚РёСЂРѕРІР°РЅ РЅР° СЃРєРѕСЂРѕСЃС‚Рё 12.5 MBits/s СЃРѕ СЃР»РµРґСѓСЋС‰РёРјРё РЅР°СЃС‚СЂРѕР№РєР°РјРё SPI:
  TransferDirection      FULL_DUPLEX
  Mode                   MASTER
  DataWidth              8BIT
@@ -33,8 +33,22 @@
  BaudRate               BAUDRATEPRESCALER_DIV8
  BitOrder               MSB_FIRST
 
- Чтобы использовать программный SPI раскомментируйте строчку "#define AD9833_USE_SOFTWARE_SPI" ниже.
- Она влияет на функции AD9833_SendData и AD9833_Init
+ Р§С‚РѕР±С‹ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РїСЂРѕРіСЂР°РјРјРЅС‹Р№ SPI СЂР°СЃРєРѕРјРјРµРЅС‚РёСЂСѓР№С‚Рµ СЃС‚СЂРѕС‡РєСѓ "#define AD9833_USE_SOFTWARE_SPI" РЅРёР¶Рµ.
+ РћРЅР° РІР»РёСЏРµС‚ РЅР° С„СѓРЅРєС†РёРё AD9833_SendData Рё AD9833_Init
+*************************************************************************************/
+
+/*************************************************************************************
+                                     Registers
+ DB15 Рё DB14 :
+ 00: Control Register
+ 01: Frequency Register 0
+ 10: Frequency Register 1
+ 11: Phase Register 0 РёР»Рё Phase Register 1 (РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ DB13)
+ DB13 :
+ РџСЂРё DB15 = 1 Рё DB14 = 1:
+ DB13 = 0: Phase Register 0
+ DB13 = 1: Phase Register 1
+
 *************************************************************************************/
 
 #ifndef __AD9833_H
@@ -66,7 +80,7 @@
 //
 #endif
 
-// Макрос для CS
+// РњР°РєСЂРѕСЃ РґР»СЏ CS
 #define AD9833_CS_SELECT()      HAL_GPIO_WritePin(GEN_SPI_CS_GPIO_Port, GEN_SPI_CS_Pin, GPIO_PIN_RESET)
 #define AD9833_CS_UNSELECT()    HAL_GPIO_WritePin(GEN_SPI_CS_GPIO_Port, GEN_SPI_CS_Pin, GPIO_PIN_SET)
 
@@ -84,10 +98,10 @@
 // Output waveform
 typedef enum
 {
-  AD9833_WAVEFORM_SINE = 0,             // Синусоидальная форма
-  AD9833_WAVEFORM_TRIANGLE = 1,         // Треугольная форма
-  AD9833_WAVEFORM_SQUARE = 2,           // Квадратная форма Vout = MSB of the DAC
-  AD9833_WAVEFORM_SQUARE_HALF = 3       // Квадратная форма /2 Vout = MSB/2 of the DAC
+  AD9833_WAVEFORM_SINE = 0,             // РЎРёРЅСѓСЃРѕРёРґР°Р»СЊРЅР°СЏ С„РѕСЂРјР°
+  AD9833_WAVEFORM_TRIANGLE = 1,         // РўСЂРµСѓРіРѕР»СЊРЅР°СЏ С„РѕСЂРјР°
+  AD9833_WAVEFORM_SQUARE = 2,           // РљРІР°РґСЂР°С‚РЅР°СЏ С„РѕСЂРјР° Vout = MSB of the DAC
+  AD9833_WAVEFORM_SQUARE_HALF = 3       // РљРІР°РґСЂР°С‚РЅР°СЏ С„РѕСЂРјР° /2 Vout = MSB/2 of the DAC
 } AD9833_Waveform;
 
 // Freq Registers
@@ -107,17 +121,17 @@ typedef enum
 // ------------------------- Functions -------------------------
 
 //void AD9833_SendData(uint16_t data);
-void AD9833_Init(void); // Инициализация AD9833
-void AD9833_Reset_ON(void);     // Активации бита сброса
-void AD9833_Reset_OFF(void);    // Деактивации бита сброса
-void AD9833_SetFrequency_0(float frequency);    // Установка значения частоты в FREQ0
-void AD9833_SetFrequency_1(float frequency);    // Установка значения частоты в FREQ1
-void AD9833_SetPhase_0(float phase);    // Установка значения фазы в PHASE0
-void AD9833_SetPhase_1(float phase);    // Установка значения фазы в PHASE1
-void AD9833_SelectOutFrequencyRegister(AD9833_FreqReg f_reg);  // Выбор рабочего регистра частоты
-void AD9833_SelectOutPhaseRegister(AD9833_PhaseReg p_reg);      // Выбор рабочего регистра фазы
-void AD9833_SetWaveform(AD9833_Waveform waveform);      // Выбор формы сигнала
-void AD9833_SetConfigF0P0(float frequency, float phase, AD9833_Waveform waveform);      // Установка конфигурации для FREQ0 и PHASE0
-void AD9833_SetConfigF1P1(float frequency, float phase, AD9833_Waveform waveform);      // Установка конфигурации для FREQ1 и PHASE1
+void AD9833_Init(void); // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ AD9833
+void AD9833_Reset_ON(void);     // РђРєС‚РёРІР°С†РёРё Р±РёС‚Р° СЃР±СЂРѕСЃР°
+void AD9833_Reset_OFF(void);    // Р”РµР°РєС‚РёРІР°С†РёРё Р±РёС‚Р° СЃР±СЂРѕСЃР°
+void AD9833_SetFrequency_0(float frequency);    // РЈСЃС‚Р°РЅРѕРІРєР° Р·РЅР°С‡РµРЅРёСЏ С‡Р°СЃС‚РѕС‚С‹ РІ FREQ0
+void AD9833_SetFrequency_1(float frequency);    // РЈСЃС‚Р°РЅРѕРІРєР° Р·РЅР°С‡РµРЅРёСЏ С‡Р°СЃС‚РѕС‚С‹ РІ FREQ1
+void AD9833_SetPhase_0(float phase);    // РЈСЃС‚Р°РЅРѕРІРєР° Р·РЅР°С‡РµРЅРёСЏ С„Р°Р·С‹ РІ PHASE0
+void AD9833_SetPhase_1(float phase);    // РЈСЃС‚Р°РЅРѕРІРєР° Р·РЅР°С‡РµРЅРёСЏ С„Р°Р·С‹ РІ PHASE1
+void AD9833_SelectOutFrequencyRegister(AD9833_FreqReg f_reg);  // Р’С‹Р±РѕСЂ СЂР°Р±РѕС‡РµРіРѕ СЂРµРіРёСЃС‚СЂР° С‡Р°СЃС‚РѕС‚С‹
+void AD9833_SelectOutPhaseRegister(AD9833_PhaseReg p_reg);      // Р’С‹Р±РѕСЂ СЂР°Р±РѕС‡РµРіРѕ СЂРµРіРёСЃС‚СЂР° С„Р°Р·С‹
+void AD9833_SetWaveform(AD9833_Waveform waveform);      // Р’С‹Р±РѕСЂ С„РѕСЂРјС‹ СЃРёРіРЅР°Р»Р°
+void AD9833_SetConfigF0P0(float frequency, float phase, AD9833_Waveform waveform);      // РЈСЃС‚Р°РЅРѕРІРєР° РєРѕРЅС„РёРіСѓСЂР°С†РёРё РґР»СЏ FREQ0 Рё PHASE0
+void AD9833_SetConfigF1P1(float frequency, float phase, AD9833_Waveform waveform);      // РЈСЃС‚Р°РЅРѕРІРєР° РєРѕРЅС„РёРіСѓСЂР°С†РёРё РґР»СЏ FREQ1 Рё PHASE1
 
 #endif /* __AD9833_H */
