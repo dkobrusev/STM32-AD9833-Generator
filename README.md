@@ -17,26 +17,33 @@ The Hardware SPI uses the LL library and is tested at 12.5 MBits/s with the foll
 1. Using STM32CubeMX or manually, configure the pin connected to the FSYNC (CS) pin of the AD9833 chip as GPIO_Output. 
 If you are using hardware SPI, configure it according to the parameters specified above. If you want to use software SPI, configure two additional pins as GPIO_Output.
 
-2. In the AD9833.h file, correct the definition of the microcontroller port and pin number to which the FSYNC (CS) pin of the AD9833 chip is connected, to the one configured earlier.
+2. In the AD9833.c file, set the frequency value on the MCLK pin of the AD9833 chip.
 ```C
-#define AD9833_CS_Port          GEN_SPI_CS_GPIO_Port    // Port of SPI CS pin
-#define AD9833_CS_Pin           GEN_SPI_CS_Pin          // SPI CS pin
+// Example for a frequency 8 MHz
+const float AD9833_freq_ref = 8000000.0;
+```
+3. In the AD9833.h file, correct the definition of the microcontroller port and pin number to which the FSYNC (CS) pin of the AD9833 chip is connected, to the one configured earlier.
+```C
+// Example for CS in PB0 pin
+#define AD9833_CS_Port          GPIOB       // Port of SPI CS pin
+#define AD9833_CS_Pin           GPIO_PIN_0  // SPI CS pin
 ```
 
 ### If you are using Software SPI
-3. Uncomment the line of code "#define AD9833_USE_SOFTWARE_SPI".
+4. Uncomment the line of code "#define AD9833_USE_SOFTWARE_SPI".
 ```C
 #define AD9833_USE_SOFTWARE_SPI
 ```
-4. Correct the definition of the microcontroller ports and pins to which the SDATA and SCLK pins of the AD9833 chip are connected.
+5. Correct the definition of the microcontroller ports and pins to which the SDATA and SCLK pins of the AD9833 chip are connected.
 ```C
-#define AD9833_SDATA_Port       GEN_SPI_MOSI_GPIO_Port  // Port of SPI SDATA pin
-#define AD9833_SDATA_Pin        GEN_SPI_MOSI_Pin        // SPI SDATA pin
-#define AD9833_SCLK_Port        GEN_SPI_SCK_GPIO_Port   // Port of SPI SCLK pin
-#define AD9833_SCLK_Pin         GEN_SPI_SCK_Pin         // SPI SCLK pin
+// Example for SDATA in PB1 pin and SCLK in PB2 pin
+#define AD9833_SDATA_Port       GPIOB        // Port of SPI SDATA pin
+#define AD9833_SDATA_Pin        GPIO_PIN_1   // SPI SDATA pin
+#define AD9833_SCLK_Port        GPIOB        // Port of SPI SCLK pin
+#define AD9833_SCLK_Pin         GPIO_PIN_2   // SPI SCLK pin
 ```
 ### If you are using Hardware SPI
-3. If necessary, correct the definition of the microcontroller's SPI module to which the AD9833 is connected.
+4. If necessary, correct the definition of the microcontroller's SPI module to which the AD9833 is connected.
 ```C
 #define AD9833_SPI_INSTANCE SPI1
 ```
@@ -45,7 +52,7 @@ If you are using hardware SPI, configure it according to the parameters specifie
 Below are the library functions that can be used to control the AD9833 chip.
 
 ```C
-//void AD9833_SendData(uint16_t data); // Data transmission (uncomment if you want to use it in the program)  
+//void AD9833_SendData(uint16_t data); // Data transmission (uncomment it in AD9833.h if you want to use it in your program)  
 void AD9833_Init(void); // AD9833 initialization
 void AD9833_Reset_ON(void);     // Activation of the reset bit
 void AD9833_Reset_OFF(void);    // Deactivation of the reset bit
@@ -58,4 +65,25 @@ void AD9833_SelectOutPhaseRegister(AD9833_PhaseReg p_reg);     // Selection of t
 void AD9833_SetWaveform(AD9833_Waveform waveform);      // Waveform selection
 void AD9833_SetConfigF0P0(float frequency, float phase, AD9833_Waveform waveform);      // Configuration and selection of the FREQ0 and PHASE0 registers, as well as the waveform 
 void AD9833_SetConfigF1P1(float frequency, float phase, AD9833_Waveform waveform);      // Configuration and selection of the FREQ1 and PHASE1 registers, as well as the waveform
+```
+
+## Example
+```C
+#include "AD9833.h"
+
+main()
+{
+    AD9833_Init(void);
+    AD9833_SetConfigF0P0(10.0f, 0.0f, AD9833_WAVEFORM_SINE);
+    float freq = 10.0f;
+    
+    while(1)
+    {
+        AD9833_SetFrequency_0(freq);
+        freq *= 5;
+        if (freq >= 8000000.0f) // 10 Hz to 8 MHz
+            freq = 10.0f;
+        HAL_Delay(200);
+    }
+}
 ```
