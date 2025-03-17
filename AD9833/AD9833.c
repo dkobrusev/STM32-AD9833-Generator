@@ -8,10 +8,10 @@
 
 // ------------------- Variables ----------------
 
-// Частота опорного генератора
-const float AD9833_freq_ref = 8000000.0f; // Частота опорного генератора в Гц
+// Р§Р°СЃС‚РѕС‚Р° РѕРїРѕСЂРЅРѕРіРѕ РіРµРЅРµСЂР°С‚РѕСЂР°
+const float AD9833_freq_ref = 8000000.0f; // Р§Р°СЃС‚РѕС‚Р° РѕРїРѕСЂРЅРѕРіРѕ РіРµРЅРµСЂР°С‚РѕСЂР° РІ Р“С†
 
-// Union значения Control Register и структуры с его битами
+// Union Р·РЅР°С‡РµРЅРёСЏ Control Register Рё СЃС‚СЂСѓРєС‚СѓСЂС‹ СЃ РµРіРѕ Р±РёС‚Р°РјРё
 union
 {
   uint16_t value;
@@ -36,48 +36,48 @@ union
 
 // -------------------------------- Functions --------------------------------
 
-/* Функция отправки данных */
+/* Р¤СѓРЅРєС†РёСЏ РѕС‚РїСЂР°РІРєРё РґР°РЅРЅС‹С… */
 void AD9833_SendData(uint16_t data)
 { 
-  // Активируем устройство
+  // РђРєС‚РёРІРёСЂСѓРµРј СѓСЃС‚СЂРѕР№СЃС‚РІРѕ
   AD9833_CS_SELECT();
   
 #ifdef AD9833_USE_SOFTWARE_SPI
   // Software SPI
   for (uint8_t i = 0; i < 16 ; i++) {  
     
-    if(data & 0x8000) // Установка первого бита (MSB)
+    if(data & 0x8000) // РЈСЃС‚Р°РЅРѕРІРєР° РїРµСЂРІРѕРіРѕ Р±РёС‚Р° (MSB)
       HAL_GPIO_WritePin(AD9833_SDATA_Port, AD9833_SDATA_Pin, GPIO_PIN_SET);
     else
       HAL_GPIO_WritePin(AD9833_SDATA_Port, AD9833_SDATA_Pin, GPIO_PIN_RESET);
     
-    ASM_NOP(); // Задержка
-    HAL_GPIO_WritePin(AD9833_SCLK_Port, AD9833_SCLK_Pin, GPIO_PIN_RESET); // Считывание данных по срезу CLK
-    ASM_NOP(); // Задержка
-    HAL_GPIO_WritePin(AD9833_SCLK_Port,AD9833_SCLK_Pin, GPIO_PIN_SET); // Фронт CLK
-    data <<= 1; // Сдвиг данных на 1 бит (следующий бит)
+    ASM_NOP(); // Р—Р°РґРµСЂР¶РєР°
+    HAL_GPIO_WritePin(AD9833_SCLK_Port, AD9833_SCLK_Pin, GPIO_PIN_RESET); // РЎС‡РёС‚С‹РІР°РЅРёРµ РґР°РЅРЅС‹С… РїРѕ СЃСЂРµР·Сѓ CLK
+    ASM_NOP(); // Р—Р°РґРµСЂР¶РєР°
+    HAL_GPIO_WritePin(AD9833_SCLK_Port,AD9833_SCLK_Pin, GPIO_PIN_SET); // Р¤СЂРѕРЅС‚ CLK
+    data <<= 1; // РЎРґРІРёРі РґР°РЅРЅС‹С… РЅР° 1 Р±РёС‚ (СЃР»РµРґСѓСЋС‰РёР№ Р±РёС‚)
   }
   
-  ASM_NOP(); // Задержка
+  ASM_NOP(); // Р—Р°РґРµСЂР¶РєР°
 #else
   // Hardware SPI
-  // Отправляем 1-е 8-битное слово
+  // РћС‚РїСЂР°РІР»СЏРµРј 1-Рµ 8-Р±РёС‚РЅРѕРµ СЃР»РѕРІРѕ
   while (!LL_SPI_IsActiveFlag_TXE(AD9833_SPI_INSTANCE));
   LL_SPI_TransmitData8(AD9833_SPI_INSTANCE, data >> 8);
   
-  // Отправляем 2-е 8-битное слово
+  // РћС‚РїСЂР°РІР»СЏРµРј 2-Рµ 8-Р±РёС‚РЅРѕРµ СЃР»РѕРІРѕ
   while (!LL_SPI_IsActiveFlag_TXE(AD9833_SPI_INSTANCE));
   LL_SPI_TransmitData8(AD9833_SPI_INSTANCE, data & 0xFF);
   
-  // Ждем завершения передачи
+  // Р–РґРµРј Р·Р°РІРµСЂС€РµРЅРёСЏ РїРµСЂРµРґР°С‡Рё
   while (LL_SPI_IsActiveFlag_BSY(AD9833_SPI_INSTANCE));  
 #endif
   
-  // Деактивируем устройство
+  // Р”РµР°РєС‚РёРІРёСЂСѓРµРј СѓСЃС‚СЂРѕР№СЃС‚РІРѕ
   AD9833_CS_UNSELECT();
 }
 
-/* Функция инициализации */
+/* Р¤СѓРЅРєС†РёСЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё */
 void AD9833_Init(void)
 {
   AD9833_CS_UNSELECT();
@@ -98,80 +98,80 @@ void AD9833_Init(void)
   AD9833_SetPhase_1(0.0f); // PHASE1, 0 rad
 }
 
-/* Функция активации бита сброса */
+/* Р¤СѓРЅРєС†РёСЏ Р°РєС‚РёРІР°С†РёРё Р±РёС‚Р° СЃР±СЂРѕСЃР° */
 void AD9833_Reset_ON(void)
 {
   AD9833_CR.bits.Reset = 1;
   AD9833_SendData(AD9833_CONTROL_REG | AD9833_CR.value);
 }
 
-/* Функция деактивации бита сброса */
+/* Р¤СѓРЅРєС†РёСЏ РґРµР°РєС‚РёРІР°С†РёРё Р±РёС‚Р° СЃР±СЂРѕСЃР° */
 void AD9833_Reset_OFF(void)
 {
   AD9833_CR.bits.Reset = 0;
   AD9833_SendData(AD9833_CONTROL_REG | AD9833_CR.value);
 }
 
-/* Функция установки частоты в регистр FREQ0 */
+/* Р¤СѓРЅРєС†РёСЏ СѓСЃС‚Р°РЅРѕРІРєРё С‡Р°СЃС‚РѕС‚С‹ РІ СЂРµРіРёСЃС‚СЂ FREQ0 */
 void AD9833_SetFrequency_0(float frequency)
 {
-  // Расчет 28-битного слова частоты
+  // Р Р°СЃС‡РµС‚ 28-Р±РёС‚РЅРѕРіРѕ СЃР»РѕРІР° С‡Р°СЃС‚РѕС‚С‹
   uint32_t freq_word = (uint32_t)((frequency * (1 << 28)) / AD9833_freq_ref);
   uint16_t freq_msb = (freq_word >> 14) & 0x3FFF;
   uint16_t freq_lsb = freq_word & 0x3FFF;
   
-  // Установка Control Register для загрузки 28-битного значения частоты
+  // РЈСЃС‚Р°РЅРѕРІРєР° Control Register РґР»СЏ Р·Р°РіСЂСѓР·РєРё 28-Р±РёС‚РЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ С‡Р°СЃС‚РѕС‚С‹
   AD9833_CR.bits.B28 = 1;
   AD9833_SendData(AD9833_CONTROL_REG | AD9833_CR.value);
   
-  // Установка младших 14 бит частоты
+  // РЈСЃС‚Р°РЅРѕРІРєР° РјР»Р°РґС€РёС… 14 Р±РёС‚ С‡Р°СЃС‚РѕС‚С‹
   AD9833_SendData(AD9833_FREQ_REG_0 | freq_lsb);
   
-  // Установка старших 14 бит частоты
+  // РЈСЃС‚Р°РЅРѕРІРєР° СЃС‚Р°СЂС€РёС… 14 Р±РёС‚ С‡Р°СЃС‚РѕС‚С‹
   AD9833_SendData(AD9833_FREQ_REG_0 | freq_msb);
 }
 
-/* Функция установки частоты в регистр FREQ1 */
+/* Р¤СѓРЅРєС†РёСЏ СѓСЃС‚Р°РЅРѕРІРєРё С‡Р°СЃС‚РѕС‚С‹ РІ СЂРµРіРёСЃС‚СЂ FREQ1 */
 void AD9833_SetFrequency_1(float frequency)
 {
-  // Расчет 28-битного слова частоты
+  // Р Р°СЃС‡РµС‚ 28-Р±РёС‚РЅРѕРіРѕ СЃР»РѕРІР° С‡Р°СЃС‚РѕС‚С‹
   uint32_t freq_word = (uint32_t)((frequency * (1 << 28)) / AD9833_freq_ref);
   uint16_t freq_msb = (freq_word >> 14) & 0x3FFF;
   uint16_t freq_lsb = freq_word & 0x3FFF;
   
-  // Установка Control Register для загрузки 28-битного значения частоты
+  // РЈСЃС‚Р°РЅРѕРІРєР° Control Register РґР»СЏ Р·Р°РіСЂСѓР·РєРё 28-Р±РёС‚РЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ С‡Р°СЃС‚РѕС‚С‹
   AD9833_CR.bits.B28 = 1;
   AD9833_SendData(AD9833_CONTROL_REG | AD9833_CR.value);
   
-  // Установка младших 14 бит частоты
+  // РЈСЃС‚Р°РЅРѕРІРєР° РјР»Р°РґС€РёС… 14 Р±РёС‚ С‡Р°СЃС‚РѕС‚С‹
   AD9833_SendData(AD9833_FREQ_REG_1 | freq_lsb);
   
-  // Установка старших 14 бит частоты
+  // РЈСЃС‚Р°РЅРѕРІРєР° СЃС‚Р°СЂС€РёС… 14 Р±РёС‚ С‡Р°СЃС‚РѕС‚С‹
   AD9833_SendData(AD9833_FREQ_REG_1 | freq_msb);
 }
 
-/* Функция установки фазы в регистр PHASE0 */
+/* Р¤СѓРЅРєС†РёСЏ СѓСЃС‚Р°РЅРѕРІРєРё С„Р°Р·С‹ РІ СЂРµРіРёСЃС‚СЂ PHASE0 */
 void AD9833_SetPhase_0(float phase)
 {
   uint16_t phase_data = ((uint16_t)(phase * 651.9f) & 0xFFF); // 4096/(2*3.14159) = 651.89919, 0xFFF - 12 bit
   
-  // Установка Phase Register 0
+  // РЈСЃС‚Р°РЅРѕРІРєР° Phase Register 0
   AD9833_SendData(AD9833_PHASE_REG_0 | phase_data);
 }
 
-/* Функция установки фазы в регистр PHASE1 */
+/* Р¤СѓРЅРєС†РёСЏ СѓСЃС‚Р°РЅРѕРІРєРё С„Р°Р·С‹ РІ СЂРµРіРёСЃС‚СЂ PHASE1 */
 void AD9833_SetPhase_1(float phase)
 {
   uint16_t phase_data = ((uint16_t)(phase * 651.9f) & 0xFFF); // 4096/(2*3.14159) = 651.89919, 0xFFF - 12 bit
   
-  // Установка Phase Register 1
+  // РЈСЃС‚Р°РЅРѕРІРєР° Phase Register 1
   AD9833_SendData(AD9833_PHASE_REG_1 | phase_data);
 }
 
-/* Функция выбора рабочего регистра частоты */
+/* Р¤СѓРЅРєС†РёСЏ РІС‹Р±РѕСЂР° СЂР°Р±РѕС‡РµРіРѕ СЂРµРіРёСЃС‚СЂР° С‡Р°СЃС‚РѕС‚С‹ */
 void AD9833_SelectOutFrequencyRegister(AD9833_FreqReg f_reg)
 {
-  // Установка бита FSELECT в Control Register
+  // РЈСЃС‚Р°РЅРѕРІРєР° Р±РёС‚Р° FSELECT РІ Control Register
   if (f_reg == AD9833_FREQ0)
   {
     // FREQ0
@@ -185,10 +185,10 @@ void AD9833_SelectOutFrequencyRegister(AD9833_FreqReg f_reg)
   AD9833_SendData(AD9833_CONTROL_REG | AD9833_CR.value);
 }
 
-/* Функция выбора рабочего регистра фазы */
+/* Р¤СѓРЅРєС†РёСЏ РІС‹Р±РѕСЂР° СЂР°Р±РѕС‡РµРіРѕ СЂРµРіРёСЃС‚СЂР° С„Р°Р·С‹ */
 void AD9833_SelectOutPhaseRegister(AD9833_PhaseReg p_reg)
 {
-  // Установка бита FSELECT в Control Register
+  // РЈСЃС‚Р°РЅРѕРІРєР° Р±РёС‚Р° FSELECT РІ Control Register
   if (p_reg == AD9833_PHASE0)
   {
     // PHASE0
@@ -202,7 +202,7 @@ void AD9833_SelectOutPhaseRegister(AD9833_PhaseReg p_reg)
   AD9833_SendData(AD9833_CONTROL_REG | AD9833_CR.value);
 }
 
-/* Установка формы сигнала */
+/* РЈСЃС‚Р°РЅРѕРІРєР° С„РѕСЂРјС‹ СЃРёРіРЅР°Р»Р° */
 void AD9833_SetWaveform(AD9833_Waveform waveform)
 {
   switch (waveform)
