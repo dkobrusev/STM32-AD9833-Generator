@@ -1,18 +1,27 @@
 # STM32-AD9833-Generator
-Library for the AD9833 microchip for STM32 microcontrollers using software or hardware (LL) SPI
+## Library for the AD9833 microchip for STM32 microcontrollers using software or hardware (LL) SPI
+
+1. [How to configure](#how-to-configure)
+2. [How to use](#how-to-use)
+3. [Example](#example)
+
+---
 
 ## How to configure
 You can use Software or Hardware SPI. Using Software or Hardware SPI only affects the AD9833_Init and AD9833_SendData functions. If you wish, you can change them to suit yourself.
+
 The Software SPI has been tested at HCLK = 100 MHz and STMF411CEU6.
+
 The Hardware SPI uses the LL library and is tested at 12.5 MBits/s with the following SPI settings in CubeMX:
- TransferDirection      FULL_DUPLEX
- Mode                   MASTER
- DataWidth              8BIT
- ClockPolarity          HIGH
- ClockPhase             1EDGE
- NSS                    NSS_SOFT
- BaudRate               BAUDRATEPRESCALER_DIV8
- BitOrder               MSB_FIRST
+
+| Parameter | Value |
+| :--- | :---: |
+| TransferDirection | FULL_DUPLEX |
+| DataWidth | 8BIT |
+| ClockPolarity | HIGH |
+| ClockPhase | 1EDGE |
+| NSS | NSS_SOFT |
+| BitOrder | MSB_FIRST |
 
 1. Using STM32CubeMX or manually, configure the pin connected to the FSYNC (CS) pin of the AD9833 chip as GPIO_Output. 
 If you are using hardware SPI, configure it according to the parameters specified above. If you want to use software SPI, configure two additional pins as GPIO_Output.
@@ -48,6 +57,8 @@ const float AD9833_freq_ref = 8000000.0;
 #define AD9833_SPI_INSTANCE SPI1
 ```
 
+---
+
 ## How to use
 Below are the library functions that can be used to control the AD9833 chip.
 
@@ -66,6 +77,7 @@ void AD9833_SetWaveform(AD9833_Waveform waveform);      // Waveform selection
 void AD9833_SetConfigF0P0(float frequency, float phase, AD9833_Waveform waveform);      // Configuration and selection of the FREQ0 and PHASE0 registers, as well as the waveform 
 void AD9833_SetConfigF1P1(float frequency, float phase, AD9833_Waveform waveform);      // Configuration and selection of the FREQ1 and PHASE1 registers, as well as the waveform
 ```
+---
 
 ## Example
 ```C
